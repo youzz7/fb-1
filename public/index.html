@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Link Preview Image Display</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            margin-top: 50px;
+        }
+
+        input[type="text"] {
+            padding: 10px;
+            width: 300px;
+            font-size: 16px;
+        }
+
+        button {
+            padding: 10px;
+            font-size: 16px;
+            margin-left: 10px;
+        }
+
+        .preview-image {
+            margin-top: 20px;
+            max-width: 100%;
+            height: auto;
+        }
+
+        .error {
+            color: red;
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+
+    <h1>Display Link Preview Image</h1>
+
+    <div>
+        <input type="text" id="linkInput" placeholder="Enter URL here...">
+        <button onclick="fetchPreviewImage()">Show Image</button>
+    </div>
+
+    <div id="previewContainer">
+        <!-- Image will be displayed here -->
+    </div>
+
+    <div class="error" id="error"></div>
+
+    <script>
+        async function fetchPreviewImage() {
+            const url = document.getElementById('linkInput').value;
+            const previewContainer = document.getElementById('previewContainer');
+            const errorContainer = document.getElementById('error');
+            
+            previewContainer.innerHTML = ''; // Clear previous content
+            errorContainer.innerHTML = '';   // Clear previous errors
+
+            if (!url) {
+                errorContainer.textContent = "Please enter a valid URL.";
+                return;
+            }
+
+            try {
+                const response = await fetch('/fetch-og-image', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ url })
+                });
+
+                const data = await response.json();
+
+                if (response.ok) {
+                    previewContainer.innerHTML = `<img src="${data.imageUrl}" class="preview-image" alt="Preview Image">`;
+                } else {
+                    errorContainer.textContent = data.error;
+                }
+            } catch (error) {
+                console.error(error);
+                errorContainer.textContent = "Error fetching the preview image. Please check the URL.";
+            }
+        }
+    </script>
+
+</body>
+</html>
